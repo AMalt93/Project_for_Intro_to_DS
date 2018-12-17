@@ -29,6 +29,14 @@ def predict(ratings,neighborhoods, k):
 
         
         if sum_of_similarities==0:
+            for movie in ratings_to_consider:
+                tup_rec = (movie , 0)
+        
+                if userId_to_predict in recommendation_dict:
+                    recommendation_dict[userId_to_predict].append(tup_rec)
+                else:
+                    recommendation_dict[userId_to_predict] = [tup_rec]
+                recommendation_list.append([int(userId_to_predict), int(movie), 0])
             continue
 
         
