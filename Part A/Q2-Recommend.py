@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import json
+import csv
 from pandas.io.json import json_normalize
 #import random
 
@@ -9,6 +10,7 @@ from pandas.io.json import json_normalize
 def predict(ratings,neighborhoods, k):
     
     recommendation_dict = {}
+    recommendation_list = []
     for index,neighborhood in neighborhoods.iterrows():
         
         ratings_to_consider=ratings[ratings['userId'].isin(neighborhood)]
@@ -55,8 +57,9 @@ def predict(ratings,neighborhoods, k):
                 recommendation_dict[userId_to_predict].append(tup_rec)
             else:
                 recommendation_dict[userId_to_predict] = [tup_rec]
+            recommendation_list.append([int(userId_to_predict), int(movie), recommendation])
    
-    return recommendation_dict
+    return recommendation_dict, recommendation_list
          
         
 
@@ -79,7 +82,12 @@ neighbors+=1
 k=len(neighbors.columns)-1
 
 
-recommendation_dict = predict(ratings,neighbors, k)
+recommendation_dict, recommendation_list = predict(ratings,neighbors, k)
 
-with open('data/recommendation.data', 'w') as fp:
+with open('data/recommendation.json', 'w') as fp:
     json.dump(recommendation_dict, fp)
+
+df = pd.DataFrame(recommendation_list, columns=['userId','movieId','rating'])
+df['userId'] = df['userId'].astype(int)
+df['movieId'] = df['movieId'].astype(int)
+df.to_csv("data/recommendation.data", sep=',',index=False)
